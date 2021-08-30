@@ -42,25 +42,21 @@ class TemplateManager
                 $text = str_replace('[instructor_link]', 'instructors/' . $objInstructor->id . '-' . urlencode($objInstructor->firstname), $text);
             }
 
-            $containsSummaryHtml = strpos($text, '[lesson:summary_html]');
-            $containsSummary = strpos($text, '[lesson:summary]');
-
-            if ($containsSummaryHtml !== false || $containsSummary !== false) {
-                if ($containsSummaryHtml !== false) {
-                    $text = str_replace(
-                        '[lesson:summary_html]',
-                        Lesson::renderHtml($_lessonFromRepository),
-                        $text
-                    );
-                }
-                if ($containsSummary !== false) {
+            if (strpos($text, '[lesson:summary_html]')) {
+                $text = str_replace(
+                    '[lesson:summary_html]',
+                    Lesson::renderHtml($objLesson),
+                    $text
+                );
+            }
+                if (strpos($text, '[lesson:summary]')) {
                     $text = str_replace(
                         '[lesson:summary]',
-                        Lesson::renderText($_lessonFromRepository),
+                        Lesson::renderText($objLesson),
                         $text
                     );
                 }
-            }
+
 
             (strpos($text, '[lesson:instructor_name]') !== false) and $text = str_replace('[lesson:instructor_name]', $objInstructor->firstname, $text);
         }
