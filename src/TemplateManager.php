@@ -33,35 +33,37 @@ class TemplateManager
         /** @var Lesson $lesson */
         $lesson = (isset($data['lesson']) and $data['lesson'] instanceof Lesson) ? $data['lesson'] : null;
 
+        $placeholderFormatter = new PlaceholderFormatter();
+
         if ($lesson) {
             $objLesson = LessonRepository::getInstance()->getById($lesson->id);
             $objMeetingPoint = MeetingPointRepository::getInstance()->getById($lesson->meetingPointId);
             $objInstructor = InstructorRepository::getInstance()->getById($lesson->instructorId);
 
-            $placeholderFormatter = new PlaceholderFormatter();
 
             $lessonPlaceholders = [
                 PlaceholderFormatter::PH_LESSON_INSTRUCTOR_LINK => 'instructors/' . $objInstructor->id . '-' . urlencode($objInstructor->firstname),
                 PlaceholderFormatter::PH_LESSON_SUMMARY_HTML => Lesson::renderHtml($objLesson),
                 PlaceholderFormatter::PH_LESSON_SUMMARY => Lesson::renderText($objLesson),
                 PlaceholderFormatter::PH_LESSON_INSTRUCTOR_NAME => $objInstructor->firstname,
+                PlaceholderFormatter::PH_LESSON_MEETING_POINT => $objMeetingPoint->name,
             ];
 
             foreach ($lessonPlaceholders as $placeholder => $replacement) {
+                if (!$lesson->meetingPointId && $placeholder === PlaceholderFormatter::PH_LESSON_MEETING_POINT) {
+                    continue;
+                }
                 $text = $placeholderFormatter->replace($placeholder, $replacement, $text);
             }
+
+            $text = $placeholderFormatter
+                ->replace(PlaceholderFormatter::PH_LESSON_START_DATE, $lesson->start_time->format('d/m/Y'), $text);
+            $text = $placeholderFormatter
+                ->replace(PlaceholderFormatter::PH_LESSON_START_TIME, $lesson->start_time->format('H:i'), $text);
+            $text = $placeholderFormatter
+                ->replace(PlaceholderFormatter::PH_LESSON_END_TIME, $lesson->end_time->format('H:i'), $text);
         }
 
-        if ($lesson->meetingPointId) {
-            $text = $placeholderFormatter->replace(PlaceholderFormatter::PH_LESSON_MEETING_POINT, $objMeetingPoint->name, $text);
-        }
-
-        $text = $placeholderFormatter
-            ->replace(PlaceholderFormatter::PH_LESSON_START_DATE, $lesson->start_time->format('d/m/Y'), $text);
-        $text = $placeholderFormatter
-            ->replace(PlaceholderFormatter::PH_LESSON_START_TIME, $lesson->start_time->format('H:i'), $text);
-        $text = $placeholderFormatter
-            ->replace(PlaceholderFormatter::PH_LESSON_END_TIME, $lesson->end_time->format('H:i'), $text);
 
         if (isset($data['instructor']) and ($data['instructor'] instanceof Instructor)) {
             $text = str_replace(PlaceholderFormatter::PH_INSTRUCTOR_LINK, 'instructors/' . $data['instructor']->id . '-' . urlencode($data['instructor']->firstname), $text);
