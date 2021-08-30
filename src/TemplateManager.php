@@ -38,27 +38,18 @@ class TemplateManager
             $objMeetingPoint = MeetingPointRepository::getInstance()->getById($lesson->meetingPointId);
             $objInstructor = InstructorRepository::getInstance()->getById($lesson->instructorId);
 
-            if (strpos($text, '[lesson:instructor_link]') !== false) {
-                $text = str_replace('[instructor_link]', 'instructors/' . $objInstructor->id . '-' . urlencode($objInstructor->firstname), $text);
+            $placeholderFormatter = new PlaceholderFormatter();
+
+            $placeholders = [
+                '[lesson:instructor_link]' => 'instructors/' . $objInstructor->id . '-' . urlencode($objInstructor->firstname),
+                '[lesson:summary_html]' =>  Lesson::renderHtml($objLesson),
+                '[lesson:summary]' =>  Lesson::renderText($objLesson),
+                '[lesson:instructor_name]' =>  $objInstructor->firstname,
+            ];
+
+            foreach ($placeholders as $placeholder => $replacement) {
+                $text = $placeholderFormatter->replace($placeholder,$replacement,$text);
             }
-
-            if (strpos($text, '[lesson:summary_html]')) {
-                $text = str_replace(
-                    '[lesson:summary_html]',
-                    Lesson::renderHtml($objLesson),
-                    $text
-                );
-            }
-                if (strpos($text, '[lesson:summary]')) {
-                    $text = str_replace(
-                        '[lesson:summary]',
-                        Lesson::renderText($objLesson),
-                        $text
-                    );
-                }
-
-
-            (strpos($text, '[lesson:instructor_name]') !== false) and $text = str_replace('[lesson:instructor_name]', $objInstructor->firstname, $text);
         }
 
         if ($lesson->meetingPointId) {
