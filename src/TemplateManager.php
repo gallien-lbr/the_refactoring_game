@@ -30,15 +30,16 @@ class TemplateManager
     {
         $APPLICATION_CONTEXT = ApplicationContext::getInstance();
 
+        /** @var Lesson $lesson */
         $lesson = (isset($data['lesson']) and $data['lesson'] instanceof Lesson) ? $data['lesson'] : null;
 
         if ($lesson) {
-            $_lessonFromRepository = LessonRepository::getInstance()->getById($lesson->id);
-            $usefulObject = MeetingPointRepository::getInstance()->getById($lesson->meetingPointId);
-            $instructorOfLesson = InstructorRepository::getInstance()->getById($lesson->instructorId);
+            $objLesson = LessonRepository::getInstance()->getById($lesson->id);
+            $objMeetingPoint = MeetingPointRepository::getInstance()->getById($lesson->meetingPointId);
+            $objInstructor = InstructorRepository::getInstance()->getById($lesson->instructorId);
 
             if (strpos($text, '[lesson:instructor_link]') !== false) {
-                $text = str_replace('[instructor_link]', 'instructors/' . $instructorOfLesson->id . '-' . urlencode($instructorOfLesson->firstname), $text);
+                $text = str_replace('[instructor_link]', 'instructors/' . $objInstructor->id . '-' . urlencode($objInstructor->firstname), $text);
             }
 
             $containsSummaryHtml = strpos($text, '[lesson:summary_html]');
@@ -61,12 +62,12 @@ class TemplateManager
                 }
             }
 
-            (strpos($text, '[lesson:instructor_name]') !== false) and $text = str_replace('[lesson:instructor_name]', $instructorOfLesson->firstname, $text);
+            (strpos($text, '[lesson:instructor_name]') !== false) and $text = str_replace('[lesson:instructor_name]', $objInstructor->firstname, $text);
         }
 
         if ($lesson->meetingPointId) {
             if (strpos($text, '[lesson:meeting_point]') !== false)
-                $text = str_replace('[lesson:meeting_point]', $usefulObject->name, $text);
+                $text = str_replace('[lesson:meeting_point]', $objMeetingPoint->name, $text);
         }
 
         if (strpos($text, '[lesson:start_date]') !== false)
