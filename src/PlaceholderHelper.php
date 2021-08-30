@@ -2,7 +2,7 @@
 
 namespace App;
 
-class PlaceholderFormatter
+class PlaceholderHelper
 {
 
     const PH_LESSON_SUMMARY_HTML = '[lesson:summary_html]';
@@ -16,7 +16,7 @@ class PlaceholderFormatter
     const PH_USER_FIRSTNAME = '[user:first_name]';
     const PH_INSTRUCTOR_LINK = '[instructor_link]';
 
-    public function replace(string $placeholder, string $replacement, string $text){
+    public static function replace(string $placeholder, string $replacement, string $text){
         if (strpos($text, $placeholder) !== false) {
             $text = str_replace($placeholder, $replacement, $text);
         }
