@@ -17,7 +17,7 @@ class PlaceholderHelper
     const PH_INSTRUCTOR_LINK = '[instructor_link]';
 
     public static function replace(string $placeholder, string $replacement, string $text){
-        if (strpos($text, $placeholder) !== false) {
+        if (strpos($text, $placeholder)) {
             $text = str_replace($placeholder, $replacement, $text);
         }
         return $text;
